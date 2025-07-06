@@ -1,6 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
+
 const { PORT = 3001 } = process.env;
+
 const mainRouter = require("./routes/index");
 const clothingItemRouter = require("./routes/clothingItems");
 const { notFoundHandler } = require("./utils/errors");

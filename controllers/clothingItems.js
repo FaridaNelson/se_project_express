@@ -1,4 +1,5 @@
 const ClothingItem = require("../models/clothingItems");
+const mongoose = require("mongoose");
 const {
   BAD_REQUEST,
   NOT_FOUND,
@@ -31,18 +32,16 @@ module.exports.createClothingItem = (req, res) => {
 module.exports.deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(BAD_REQUEST).send({ message: err.message });
+    return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
   }
   ClothingItem.findByIdAndDelete(req.params.itemId)
-    .orFail()
-    .then((item) => {
-      if (!item) {
-        return res.status(NOT_FOUND).send({ message: err.message });
-      }
-      res.send({ data: item });
-    })
+    .orFail(() => new Error("Item not found"))
+    .then((item) => res.send({ data: item }))
     .catch((err) => {
       console.error(err);
+      if (err.message === "Item not found") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
       res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
@@ -57,7 +56,7 @@ module.exports.likeItem = (req, res) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      res.send(item);
+      return res.send(item);
     })
     .catch((err) => {
       console.error(err);
@@ -75,7 +74,7 @@ module.exports.unlikeItem = (req, res) => {
       if (!item) {
         return res.status(NOT_FOUND).send({ message: "Item not found" });
       }
-      res.send(item);
+      return res.send(item);
     })
     .catch((err) => {
       console.error(err);
