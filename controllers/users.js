@@ -19,16 +19,16 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail()
+    .orFail(() => new Error("User not found"))
     .then((user) => {
-      if (!user) {
-        return res.status(NOT_FOUND).send({ message: err.message });
-      }
       res.status(OK).send({ data: user });
     })
     .catch((err) => {
       console.error(err);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      if (err.message === "User not found") {
+        return res.status(NOT_FOUND).send({ message: err.message });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
@@ -40,7 +40,7 @@ module.exports.createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: err.message });
+        res.status(BAD_REQUEST).send({ message: err.message });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
       }

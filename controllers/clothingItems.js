@@ -1,5 +1,6 @@
-const ClothingItem = require("../models/clothingItems");
 const mongoose = require("mongoose");
+
+const ClothingItem = require("../models/clothingItems");
 const {
   BAD_REQUEST,
   NOT_FOUND,
@@ -31,18 +32,21 @@ module.exports.createClothingItem = (req, res) => {
 
 module.exports.deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
+
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
     return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
   }
-  ClothingItem.findByIdAndDelete(req.params.itemId)
+
+  return ClothingItem.findByIdAndDelete(req.params.itemId)
     .orFail(() => new Error("Item not found"))
     .then((item) => res.send({ data: item }))
     .catch((err) => {
       console.error(err);
       if (err.message === "Item not found") {
-        return res.status(NOT_FOUND).send({ message: err.message });
+        res.status(NOT_FOUND).send({ message: err.message });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
       }
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
