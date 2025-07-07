@@ -57,7 +57,7 @@ module.exports.likeItem = (req, res) => {
     return res.status(400).send({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true }
@@ -81,7 +81,7 @@ module.exports.unlikeItem = (req, res) => {
     return res.status(400).send({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(
+  return ClothingItem.findByIdAndUpdate(
     itemId,
     { $pull: { likes: req.user._id } }, // remove user from likes array
     { new: true }
