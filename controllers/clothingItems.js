@@ -20,7 +20,8 @@ module.exports.getClothingItems = (req, res) => {
 };
 
 module.exports.createClothingItem = (req, res) => {
-  const { name, weather, imageUrl, owner } = req.body;
+  const { name, weather, imageUrl } = req.body;
+  const owner = req.user._id;
 
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => res.status(CREATED).send({ data: item }))
@@ -37,9 +38,9 @@ module.exports.deleteClothingItem = (req, res) => {
     return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
   }
 
-  return ClothingItem.findByIdAndDelete(req.params.itemId)
+  return ClothingItem.findByIdAndDelete(itemId)
     .orFail(() => new Error("Item not found"))
-    .then((item) => res.send({ data: item }))
+    .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
       console.error(err);
       if (err.message === "Item not found") {
@@ -51,9 +52,15 @@ module.exports.deleteClothingItem = (req, res) => {
 };
 
 module.exports.likeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    return res.status(400).send({ message: "Invalid item ID" });
+  }
+
   ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
-    { $addToSet: { likes: req.user._id } }, // avoids duplicate likes
+    itemId,
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .then((item) => {
@@ -69,8 +76,14 @@ module.exports.likeItem = (req, res) => {
 };
 
 module.exports.unlikeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    return res.status(400).send({ message: "Invalid item ID" });
+  }
+
   ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
+    itemId,
     { $pull: { likes: req.user._id } }, // remove user from likes array
     { new: true }
   )

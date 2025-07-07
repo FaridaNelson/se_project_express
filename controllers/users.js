@@ -1,4 +1,5 @@
 const User = require("../models/users");
+const mongoose = require("mongoose");
 
 const {
   BAD_REQUEST,
@@ -18,6 +19,12 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).send({ message: "Invalid user ID" });
+  }
+
   User.findById(req.params.userId)
     .orFail(() => new Error("User not found"))
     .then((user) => {
