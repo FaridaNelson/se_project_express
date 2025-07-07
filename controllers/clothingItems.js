@@ -44,10 +44,9 @@ module.exports.deleteClothingItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.message === "Item not found") {
-        res.status(NOT_FOUND).send({ message: err.message });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        return res.status(NOT_FOUND).send({ message: err.message });
       }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
 
@@ -95,6 +94,6 @@ module.exports.unlikeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
     });
 };
