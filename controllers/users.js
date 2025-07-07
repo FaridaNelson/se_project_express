@@ -20,7 +20,7 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
-    return res.status(NOT_FOUND).send({ message: "Invalid user ID" });
+    return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
   }
 
   return User.findById(req.params.userId)
