@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 
 const { PORT = 3001 } = process.env;
 
-const mainRouter = require("./routes/index");
-const clothingItemRouter = require("./routes/clothingItems");
+const mainRouter = require("./routes");
 const { notFoundHandler } = require("./utils/errors");
 
 const app = express();
@@ -21,7 +20,6 @@ app.use((req, res, next) => {
 });
 
 app.use("/", mainRouter);
-app.use("/items", clothingItemRouter);
 
 // Error handling middleware
 app.use(notFoundHandler);

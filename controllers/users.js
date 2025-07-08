@@ -27,11 +27,14 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
+      }
       if (err.message === "User not found") {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
       return res
-        .status(BAD_REQUEST)
+        .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error has occurred on the server" });
     });
 };
