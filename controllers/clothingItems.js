@@ -15,7 +15,9 @@ module.exports.getClothingItems = (req, res) => {
     .then((items) => res.status(OK).send({ data: items }))
     .catch((err) => {
       console.error(err);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -27,7 +29,9 @@ module.exports.createClothingItem = (req, res) => {
     .then((item) => res.status(CREATED).send({ data: item }))
     .catch((err) => {
       console.error(err.message);
-      res.status(BAD_REQUEST).send({ message: err.message });
+      res
+        .status(BAD_REQUEST)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -46,7 +50,9 @@ module.exports.deleteClothingItem = (req, res) => {
       if (err.message === "Item not found") {
         return res.status(NOT_FOUND).send({ message: err.message });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -70,7 +76,9 @@ module.exports.likeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -94,6 +102,8 @@ module.exports.unlikeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error has occurred on the server" });
     });
 };
