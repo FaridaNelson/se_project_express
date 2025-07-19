@@ -1,5 +1,6 @@
 // constants for HTTP status codes
 const BAD_REQUEST = 400;
+const UNOTHORIZED = 401;
 const NOT_FOUND = 404;
 const INTERNAL_SERVER_ERROR = 500;
 const CREATED = 201;
@@ -13,6 +14,7 @@ function notFoundHandler(req, res) {
 module.exports = {
   BAD_REQUEST,
   NOT_FOUND,
+  UNOTHORIZED,
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,

@@ -1,13 +1,11 @@
 const router = require("express").Router();
-const { getUsers, getUserById, createUser } = require("../controllers/users");
 const { notFoundHandler } = require("../utils/errors");
-
-router.get("/", getUsers);
-
-router.get("/:userId", getUserById);
-
-router.post("/", createUser);
+const { getCurrentUser } = require("../controllers/users");
+const { updateProfile } = require("../controllers/users");
 
 router.use("*", notFoundHandler); // Catch-all for undefined routes
+router.get("/me", getCurrentUser);
+// PATCH /users/me — update profile
+router.patch("/me", updateProfile);
 
 module.exports = router;
