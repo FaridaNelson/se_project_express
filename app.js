@@ -21,6 +21,13 @@ app.post("/signin", require("./controllers/users").login);
 
 app.post("/signup", require("./controllers/users").createUser);
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: "5d8b8592978f8bd833ca8133", // mock ID
+  };
+  next();
+});
+
 app.use("/items", itemsRouter);
 
 // Authorization middleware for protected routes
