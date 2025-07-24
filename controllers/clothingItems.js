@@ -50,7 +50,7 @@ module.exports.deleteClothingItem = (req, res) => {
   return ClothingItem.findById(itemId)
     .orFail(() => new Error("Item not found"))
     .then((item) => {
-      if (item.owner.toString() !== req.user._id) {
+      if (item.owner.toString() !== req.user._id.toString()) {
         return res.status(403).send({
           message: "You are not authorized to delete this item",
         });

@@ -61,8 +61,15 @@ module.exports.createUser = (req, res) => {
       // Remove sensitive information before sending the response
       delete userObj.password;
 
-      const { _id, email: userEmail } = user;
-      res.status(CREATED).send({ _id, email: userEmail });
+      const {
+        _id,
+        name: userName,
+        avatar: userAvatar,
+        email: userEmail,
+      } = userObj;
+      res
+        .status(CREATED)
+        .send({ _id, name: userName, avatar: userAvatar, email: userEmail });
     })
     .catch((err) => {
       console.error(err);
@@ -86,6 +93,12 @@ module.exports.createUser = (req, res) => {
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
