@@ -50,6 +50,9 @@ module.exports.deleteClothingItem = (req, res) => {
   return ClothingItem.findById(itemId)
     .orFail(() => new Error("Item not found"))
     .then((item) => {
+      if (!req.user || !req.user._id) {
+        return res.status(403).send({ message: "No user ID in request" });
+      }
       // check if item.owner._id is populated:
       const itemOwnerId =
         typeof item.owner === "object"

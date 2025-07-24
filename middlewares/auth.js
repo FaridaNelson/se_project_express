@@ -12,16 +12,16 @@ module.exports = (req, res, next) => {
 
   const token = authorization.replace("Bearer ", "");
 
+  let payload;
   try {
     // 2. Verify token
-    const payload = jwt.verify(token, JWT_SECRET);
-
-    // 3. Attach user payload to request
-    req.user = payload;
-
-    // 4. Continue to the next middleware/route handler
-    return next();
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return res.status(UNAUTHORIZED).send({ message: "Authorization required" });
+    return res.status(401).sent({ message: "Invalid token" });
   }
+  // 3. Attach user payload to request
+  req.user = payload;
+
+  // 4. Continue to the next middleware/route handler
+  return next();
 };
