@@ -53,6 +53,11 @@ module.exports.deleteClothingItem = (req, res) => {
       if (!req.user || !req.user._id) {
         return res.status(403).send({ message: "No user ID in request" });
       }
+
+      //check what is being compared:
+      console.log("DELETE: item.owner =", item.owner.toString());
+      console.log("DELETE: req.user._id =", req.user._id);
+
       // check if item.owner._id is populated:
       const itemOwnerId =
         typeof item.owner === "object"
