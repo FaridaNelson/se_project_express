@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
     // 2. Verify token
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return res.status(401).sent({ message: "Invalid token" });
+    return res.status(401).send({ message: "Invalid token" });
   }
   // 3. Attach user payload to request
   req.user = payload;
