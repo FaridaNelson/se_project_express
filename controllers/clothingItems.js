@@ -50,9 +50,6 @@ module.exports.deleteClothingItem = (req, res) => {
   return ClothingItem.findById(itemId)
     .orFail(() => new Error("Item not found"))
     .then((item) => {
-      console.log("DEBUG - item.owner:", item.owner);
-      console.log("DEBUG - req.user:", req.user);
-      console.log("DEBUG - req.user._id:", req.user && req.user._id);
       if (!req.user || !req.user._id) {
         return res.status(403).send({ message: "No user ID in request" });
       }
