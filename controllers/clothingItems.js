@@ -7,7 +7,6 @@ const {
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
-  UNAUTHORIZED,
 } = require("../utils/errors");
 
 module.exports.getClothingItems = (req, res) => {
