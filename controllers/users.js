@@ -6,7 +6,7 @@ const { JWT_SECRET } = require("../utils/config");
 const {
   BAD_REQUEST,
   NOT_FOUND,
-  UNOTHORIZED,
+  UNAUTHORIZED,
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
@@ -96,7 +96,7 @@ module.exports.login = (req, res) => {
     })
     .catch((err) => {
       if (err.message === "Incorrect email or password") {
-        return res.status(UNOTHORIZED).send({ message: err.message });
+        return res.status(UNAUTHORIZED).send({ message: err.message });
       }
       // Handle other errors
       console.error(err);

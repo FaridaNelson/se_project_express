@@ -11,7 +11,7 @@ const itemsRouter = require("./routes/clothingItems");
 const mainRouter = require("./routes");
 const { notFoundHandler } = require("./utils/errors");
 
-mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db");
+mongoose.connect("mongodb://localhost:27017/wtwr_db");
 
 app.use(cors());
 app.use(express.json());

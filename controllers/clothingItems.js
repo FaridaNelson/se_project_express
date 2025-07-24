@@ -7,7 +7,7 @@ const {
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
-  UNOTHORIZED,
+  UNAUTHORIZED,
 } = require("../utils/errors");
 
 module.exports.getClothingItems = (req, res) => {
@@ -48,16 +48,18 @@ module.exports.deleteClothingItem = (req, res) => {
     return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
   }
 
-  return ClothingItem.findByIdAndDelete(itemId)
+  return ClothingItem.findById(itemId)
     .orFail(() => new Error("Item not found"))
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
-        return res.status(UNOTHORIZED).send({
+        return res.status(403).send({
           message: "You are not authorized to delete this item",
         });
       }
 
-      return item.deleteOne().then(() => res.status(OK).send({ data: item }));
+      return ClothingItem.findByIdAndDelete(itemId).then(() =>
+        res.status(OK).send({ data: item })
+      );
     })
     .catch((err) => {
       console.error(err);
