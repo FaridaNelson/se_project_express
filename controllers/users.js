@@ -7,6 +7,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   UNAUTHORIZED,
+  CONFLICT,
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
@@ -77,7 +78,7 @@ module.exports.createUser = (req, res) => {
       if (err.code === 11000) {
         // Duplicate email error
         return res
-          .status(409)
+          .status(CONFLICT)
           .send({ message: "A user with this email already exists." });
       }
 

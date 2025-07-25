@@ -6,7 +6,6 @@ const {
   likeItem,
   unlikeItem,
 } = require("../controllers/clothingItems");
-const { notFoundHandler } = require("../utils/errors");
 
 // GET /items — returns all clothing items
 router.get("/", getClothingItems);
@@ -18,7 +17,5 @@ router.delete("/:itemId", deleteClothingItem);
 // routes for the like and unlike functionality
 router.put("/:itemId/likes", likeItem);
 router.delete("/:itemId/likes", unlikeItem);
-
-router.use("*", notFoundHandler); // Catch-all for undefined routes
 
 module.exports = router;

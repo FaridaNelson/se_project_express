@@ -7,11 +7,11 @@ const {
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
+  FORBIDDEN,
 } = require("../utils/errors");
 
 module.exports.getClothingItems = (req, res) => {
   ClothingItem.find({})
-    .populate(["owner"])
     .then((items) => res.status(OK).send({ data: items }))
     .catch((err) => {
       console.error(err);
@@ -51,7 +51,7 @@ module.exports.deleteClothingItem = (req, res) => {
     .orFail(() => new Error("Item not found"))
     .then((item) => {
       if (!req.user || !req.user._id) {
-        return res.status(403).send({ message: "No user ID in request" });
+        return res.status(FORBIDDEN).send({ message: "No user ID in request" });
       }
 
       // check if item.owner._id is populated:
@@ -62,7 +62,7 @@ module.exports.deleteClothingItem = (req, res) => {
           : item.owner.toString();
 
       if (itemOwnerId !== req.user._id.toString()) {
-        return res.status(403).send({
+        return res.status(FORBIDDEN).send({
           message: "You are not authorized to delete this item",
         });
       }
@@ -86,7 +86,7 @@ module.exports.likeItem = (req, res) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(400).send({ message: "Invalid item ID" });
+    return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
   }
 
   return ClothingItem.findByIdAndUpdate(
@@ -112,7 +112,7 @@ module.exports.unlikeItem = (req, res) => {
   const { itemId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(400).send({ message: "Invalid item ID" });
+    return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
   }
 
   return ClothingItem.findByIdAndUpdate(

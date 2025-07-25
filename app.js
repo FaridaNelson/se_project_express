@@ -6,8 +6,6 @@ const app = express();
 const { PORT = 3001 } = process.env;
 
 const auth = require("./middlewares/auth");
-const usersRouter = require("./routes/users");
-const itemsRouter = require("./routes/clothingItems");
 const mainRouter = require("./routes");
 const { notFoundHandler } = require("./utils/errors");
 
@@ -21,20 +19,12 @@ app.post("/signin", require("./controllers/users").login);
 
 app.post("/signup", require("./controllers/users").createUser);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "5d8b8592978f8bd833ca8133", // mock ID
-  };
-  next();
-});
-
-app.use("/items", itemsRouter);
+app.get("/items", require("./controllers/clothingItems").getClothingItems);
 
 // Authorization middleware for protected routes
 app.use(auth);
 
 // Protected routes
-app.use("/users", usersRouter);
 app.use("/", mainRouter);
 
 // Error handling middleware
