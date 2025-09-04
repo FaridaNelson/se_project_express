@@ -1,5 +1,4 @@
 module.exports = {
-  AppError: require("./AppError"),
   NotFoundError: require("./NotFoundError"),
   BadRequestError: require("./BadRequestError"),
   UnauthorizedError: require("./UnauthorizedError"),
