@@ -9,6 +9,7 @@ const auth = require("./middlewares/auth");
 const errorHandler = require("./middlewares/error-handler");
 const mainRouter = require("./routes");
 const { notFoundHandler } = require("./utils/error-codes");
+const { errors } = require("celebrate");
 
 mongoose.connect("mongodb://localhost:27017/wtwr_db");
 
@@ -27,6 +28,9 @@ app.use(auth);
 
 // Protected routes
 app.use("/", mainRouter);
+
+// Celebrate error handler
+app.use(errors());
 
 // Error handling middleware
 app.use(notFoundHandler);
