@@ -5,11 +5,11 @@ const cors = require("cors");
 const app = express();
 const { PORT = 3001 } = process.env;
 
+const { errors } = require("celebrate");
 const auth = require("./middlewares/auth");
 const errorHandler = require("./middlewares/error-handler");
 const mainRouter = require("./routes");
 const { notFoundHandler } = require("./utils/error-codes");
-const { errors } = require("celebrate");
 
 mongoose.connect("mongodb://localhost:27017/wtwr_db");
 
