@@ -10,15 +10,14 @@ const {
   NotFoundError,
   ConflictError,
   UnauthorizedError,
-  ForbiddenError,
 } = require("../errors");
 
 module.exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
-    res.status(OK).send({ data: users });
+    return res.status(OK).send({ data: users });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 
@@ -31,12 +30,12 @@ module.exports.getCurrentUser = async (req, res, next) => {
       () => new NotFoundError("User not found")
     );
 
-    res.status(OK).send({ data: user });
+    return res.status(OK).send({ data: user });
   } catch (err) {
     if (err?.name === "CastError") {
       return next(new BadRequestError("Invalid user ID"));
     }
-    next(err);
+    return next(err);
   }
 };
 
@@ -53,7 +52,7 @@ module.exports.createUser = async (req, res, next) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(CREATED).send({ data: userObj });
+    return res.status(CREATED).send({ data: userObj });
   } catch (err) {
     if (err?.code === 11000) {
       return next(new ConflictError("A user with this email already exists."));
@@ -61,7 +60,7 @@ module.exports.createUser = async (req, res, next) => {
     if (err?.name === "ValidationError") {
       return next(new BadRequestError(err.message));
     }
-    next(err);
+    return next(err);
   }
 };
 
@@ -75,12 +74,12 @@ module.exports.login = async (req, res, next) => {
     const user = await User.findUserByCredentials(email, password);
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
 
-    res.status(OK).send({ token });
+    return res.status(OK).send({ token });
   } catch (err) {
     if (err?.message === "Incorrect email or password") {
       return next(new UnauthorizedError(err.message));
     }
-    next(err);
+    return next(err);
   }
 };
 
@@ -105,7 +104,7 @@ module.exports.updateProfile = async (req, res, next) => {
 
     if (!updatedUser) throw new NotFoundError("User not found");
 
-    res.status(OK).send({ data: updatedUser });
+    return res.status(OK).send({ data: updatedUser });
   } catch (err) {
     if (err?.name === "ValidationError") {
       return next(new BadRequestError(err.message));
@@ -113,6 +112,6 @@ module.exports.updateProfile = async (req, res, next) => {
     if (err?.name === "CastError") {
       return next(new BadRequestError("Invalid user ID"));
     }
-    next(err);
+    return next(err);
   }
 };

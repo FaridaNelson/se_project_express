@@ -14,9 +14,9 @@ const { CREATED, OK } = require("../utils/error-codes");
 module.exports.getClothingItems = async (req, res, next) => {
   try {
     const items = await ClothingItem.find({});
-    res.status(OK).send({ data: items });
+    return res.status(OK).send({ data: items });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 
@@ -27,7 +27,7 @@ module.exports.createClothingItem = async (req, res, next) => {
     if (!owner) throw new UnauthorizedError("No user ID in request");
 
     const item = await ClothingItem.create({ name, weather, imageUrl, owner });
-    res.status(CREATED).send({ data: item });
+    return res.status(CREATED).send({ data: item });
   } catch (err) {
     // Map common Mongoose errors to my custom ones:
     if (err?.name === "ValidationError") {
@@ -36,7 +36,7 @@ module.exports.createClothingItem = async (req, res, next) => {
     if (err?.code === 11000) {
       return next(new ConflictError("Item with these fields already exists"));
     }
-    next(err);
+    return next(err);
   }
 };
 
@@ -66,9 +66,9 @@ module.exports.deleteClothingItem = async (req, res, next) => {
     }
 
     await ClothingItem.findByIdAndDelete(itemId);
-    res.status(OK).send({ data: item });
+    return res.status(OK).send({ data: item });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 
@@ -88,13 +88,13 @@ module.exports.likeItem = async (req, res, next) => {
 
     if (!item) throw new NotFoundError("Item not found");
 
-    res.status(OK).send({ data: item });
+    return res.status(OK).send({ data: item });
   } catch (err) {
     // CastError (bad id in update path) → BadRequest
     if (err?.name === "CastError") {
       return next(new BadRequestError("Invalid item ID"));
     }
-    next(err);
+    return next(err);
   }
 };
 
@@ -114,11 +114,11 @@ module.exports.unlikeItem = async (req, res, next) => {
 
     if (!item) throw new NotFoundError("Item not found");
 
-    res.status(OK).send({ data: item });
+    return res.status(OK).send({ data: item });
   } catch (err) {
     if (err?.name === "CastError") {
       return next(new BadRequestError("Invalid item ID"));
     }
-    next(err);
+    return next(err);
   }
 };
