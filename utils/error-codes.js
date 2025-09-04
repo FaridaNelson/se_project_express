@@ -9,9 +9,8 @@ const CREATED = 201;
 const OK = 200;
 
 // 404 Not Found Middleware
-function notFoundHandler(req, res) {
-  res.status(NOT_FOUND).send({ message: "Requested resource not found" });
-}
+const notFoundHandler = require("../middlewares/notFound");
+const { NotFoundError } = require("../errors");
 
 module.exports = {
   BAD_REQUEST,
@@ -23,4 +22,5 @@ module.exports = {
   CREATED,
   OK,
   notFoundHandler,
+  NotFoundError,
 };

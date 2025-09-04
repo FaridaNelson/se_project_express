@@ -1,135 +1,124 @@
 const mongoose = require("mongoose");
-
 const ClothingItem = require("../models/clothingItems");
+
 const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-  CREATED,
-  OK,
-  FORBIDDEN,
-} = require("../utils/errors");
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
+  UnauthorizedError,
+  ConflictError,
+} = require("../errors");
 
-module.exports.getClothingItems = (req, res) => {
-  ClothingItem.find({})
-    .then((items) => res.status(OK).send({ data: items }))
-    .catch((err) => {
-      console.error(err);
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
+const { CREATED, OK } = require("../utils/error-codes");
 
-module.exports.createClothingItem = (req, res) => {
-  const { name, weather, imageUrl } = req.body;
-  const owner = req.user._id;
-
-  ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((item) => res.status(CREATED).send({ data: item }))
-    .catch((err) => {
-      console.error(err.message);
-      if (err.name === "ValidationError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: `Validation error: ${err.message}` });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
-};
-
-module.exports.deleteClothingItem = (req, res) => {
-  const { itemId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+module.exports.getClothingItems = async (req, res, next) => {
+  try {
+    const items = await ClothingItem.find({});
+    res.status(OK).send({ data: items });
+  } catch (err) {
+    next(err);
   }
-
-  return ClothingItem.findById(itemId)
-    .orFail(() => new Error("Item not found"))
-    .then((item) => {
-      if (!req.user || !req.user._id) {
-        return res.status(FORBIDDEN).send({ message: "No user ID in request" });
-      }
-
-      // check if item.owner._id is populated:
-
-      const itemOwnerId =
-        typeof item.owner === "object"
-          ? item.owner._id.toString()
-          : item.owner.toString();
-
-      if (itemOwnerId !== req.user._id.toString()) {
-        return res.status(FORBIDDEN).send({
-          message: "You are not authorized to delete this item",
-        });
-      }
-
-      return ClothingItem.findByIdAndDelete(itemId).then(() =>
-        res.status(OK).send({ data: item })
-      );
-    })
-    .catch((err) => {
-      console.error(err);
-      if (err.message === "Item not found") {
-        return res.status(NOT_FOUND).send({ message: err.message });
-      }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
 };
 
-module.exports.likeItem = (req, res) => {
-  const { itemId } = req.params;
+module.exports.createClothingItem = async (req, res, next) => {
+  try {
+    const { name, weather, imageUrl } = req.body;
+    const owner = req.user?._id;
+    if (!owner) throw new UnauthorizedError("No user ID in request");
 
-  if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+    const item = await ClothingItem.create({ name, weather, imageUrl, owner });
+    res.status(CREATED).send({ data: item });
+  } catch (err) {
+    // Map common Mongoose errors to my custom ones:
+    if (err?.name === "ValidationError") {
+      return next(new BadRequestError(`Validation error: ${err.message}`));
+    }
+    if (err?.code === 11000) {
+      return next(new ConflictError("Item with these fields already exists"));
+    }
+    next(err);
   }
-
-  return ClothingItem.findByIdAndUpdate(
-    itemId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true }
-  )
-    .then((item) => {
-      if (!item) {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
-      }
-      return res.send(item);
-    })
-    .catch((err) => {
-      console.error(err);
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
 };
 
-module.exports.unlikeItem = (req, res) => {
-  const { itemId } = req.params;
+module.exports.deleteClothingItem = async (req, res, next) => {
+  try {
+    const { itemId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(itemId)) {
-    return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      throw new BadRequestError("Invalid item ID");
+    }
+    if (!req.user?._id) {
+      throw new UnauthorizedError("No user ID in request");
+    }
+
+    const item = await ClothingItem.findById(itemId).orFail(
+      () => new NotFoundError("Item not found")
+    );
+
+    // Ensure the owner field is compared correctly
+    const itemOwnerId =
+      typeof item.owner === "object" && item.owner !== null
+        ? item.owner._id?.toString?.()
+        : item.owner?.toString?.();
+
+    if (itemOwnerId !== req.user._id.toString()) {
+      throw new ForbiddenError("You are not authorized to delete this item");
+    }
+
+    await ClothingItem.findByIdAndDelete(itemId);
+    res.status(OK).send({ data: item });
+  } catch (err) {
+    next(err);
   }
+};
 
-  return ClothingItem.findByIdAndUpdate(
-    itemId,
-    { $pull: { likes: req.user._id } }, // remove user from likes array
-    { new: true }
-  )
-    .then((item) => {
-      if (!item) {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
-      }
-      return res.send(item);
-    })
-    .catch((err) => {
-      console.error(err);
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error has occurred on the server" });
-    });
+module.exports.likeItem = async (req, res, next) => {
+  try {
+    const { itemId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      throw new BadRequestError("Invalid item ID");
+    }
+
+    const item = await ClothingItem.findByIdAndUpdate(
+      itemId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true }
+    );
+
+    if (!item) throw new NotFoundError("Item not found");
+
+    res.status(OK).send({ data: item });
+  } catch (err) {
+    // CastError (bad id in update path) → BadRequest
+    if (err?.name === "CastError") {
+      return next(new BadRequestError("Invalid item ID"));
+    }
+    next(err);
+  }
+};
+
+module.exports.unlikeItem = async (req, res, next) => {
+  try {
+    const { itemId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      throw new BadRequestError("Invalid item ID");
+    }
+
+    const item = await ClothingItem.findByIdAndUpdate(
+      itemId,
+      { $pull: { likes: req.user._id } },
+      { new: true }
+    );
+
+    if (!item) throw new NotFoundError("Item not found");
+
+    res.status(OK).send({ data: item });
+  } catch (err) {
+    if (err?.name === "CastError") {
+      return next(new BadRequestError("Invalid item ID"));
+    }
+    next(err);
+  }
 };

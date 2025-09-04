@@ -6,8 +6,9 @@ const app = express();
 const { PORT = 3001 } = process.env;
 
 const auth = require("./middlewares/auth");
+const errorHandler = require("./middlewares/error-handler");
 const mainRouter = require("./routes");
-const { notFoundHandler } = require("./utils/errors");
+const { notFoundHandler } = require("./utils/error-codes");
 
 mongoose.connect("mongodb://localhost:27017/wtwr_db");
 
@@ -29,6 +30,8 @@ app.use("/", mainRouter);
 
 // Error handling middleware
 app.use(notFoundHandler);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
