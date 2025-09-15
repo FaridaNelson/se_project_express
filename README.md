@@ -88,6 +88,8 @@ http://localhost:3001
 
 You can use tools like **Postman** or **cURL** to test your API endpoints locally.
 
-## 📍 Project Status
+## Deployment
 
-Currently under development. Not yet deployed.
+- **Frontend repository:** https://github.com/FaridaNelson/Weather-App
+
+- **Production domain:** https://wtwr.star.is

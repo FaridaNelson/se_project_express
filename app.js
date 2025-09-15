@@ -24,6 +24,12 @@ app.use(requestLogger);
 // no authorization required for these routes
 app.post("/signin", require("./controllers/users").login);
 
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
+
 app.post("/signup", require("./controllers/users").createUser);
 
 app.get("/items", require("./controllers/clothingItems").getClothingItems);
