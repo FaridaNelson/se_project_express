@@ -13,8 +13,8 @@ const { CREATED, OK } = require("../utils/error-codes");
 
 module.exports.getClothingItems = async (req, res, next) => {
   try {
-    const items = await ClothingItem.find({});
-    return res.status.send({ data: items });
+    const items = await ClothingItem.find({}).sort({ createdAt: -1 });
+    return res.status(200).send(items);
   } catch (err) {
     return next(err);
   }
