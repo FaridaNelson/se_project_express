@@ -1,7 +1,8 @@
-const { NOT_FOUND } = require("../utils/error-codes");
+const NotFoundError = require("../errors/NotFoundError");
 
-function notFoundHandler(req, res) {
-  next(new Error("Requested resource not found"));
-}
+module.exports = function notFound(req, res, next) {
+  if (res.headersSent) return next();
 
-module.exports = notFoundHandler;
+  const msg = `Requested resource ${req.method} ${req.originalUrl} was not found`;
+  return next(new NotFoundError(msg));
+};

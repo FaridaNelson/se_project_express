@@ -11,7 +11,7 @@ const auth = require("./middlewares/auth");
 const errorHandler = require("./middlewares/errorHandler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const mainRouter = require("./routes");
-const { notFoundHandler } = require("./utils/error-codes");
+const notFound = require("./middlewares/notFound");
 const {
   validateCreateUser,
   validateLogin,
@@ -49,7 +49,7 @@ app.use(auth);
 app.use("/", mainRouter);
 
 // Error handling middleware
-app.use(notFoundHandler);
+app.use(notFound);
 
 // Error loggging middleware
 app.use(errorLogger);
