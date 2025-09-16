@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
 
   // 1. Check if Authorization header exists and starts with "Bearer "
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    return res.status(UNAUTHORIZED).send({ message: "Authorization required" });
+    next(new Error("Authorization required"));
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
     // 2. Verify token
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return res.status(UNAUTHORIZED).send({ message: "Invalid token" });
+    next(new Error("Invalid token"));
   }
   // 3. Attach user payload to request
   req.user = payload;

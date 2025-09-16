@@ -14,7 +14,7 @@ const { CREATED, OK } = require("../utils/error-codes");
 module.exports.getClothingItems = async (req, res, next) => {
   try {
     const items = await ClothingItem.find({});
-    return res.status(OK).send({ data: items });
+    return res.status.send({ data: items });
   } catch (err) {
     return next(err);
   }

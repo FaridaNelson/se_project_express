@@ -12,6 +12,10 @@ const errorHandler = require("./middlewares/errorHandler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const mainRouter = require("./routes");
 const { notFoundHandler } = require("./utils/error-codes");
+const {
+  validateCreateUser,
+  validateLogin,
+} = require("./middlewares/validation");
 
 mongoose.connect("mongodb://localhost:27017/wtwr_db");
 
@@ -22,7 +26,7 @@ app.use(express.json());
 app.use(requestLogger);
 
 // no authorization required for these routes
-app.post("/signin", require("./controllers/users").login);
+app.post("/signin", validateLogin, require("./controllers/users").login);
 
 app.get("/crash-test", () => {
   setTimeout(() => {
@@ -30,7 +34,11 @@ app.get("/crash-test", () => {
   }, 0);
 });
 
-app.post("/signup", require("./controllers/users").createUser);
+app.post(
+  "/signup",
+  validateCreateUser,
+  require("./controllers/users").createUser
+);
 
 app.get("/items", require("./controllers/clothingItems").getClothingItems);
 

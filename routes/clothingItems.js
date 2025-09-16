@@ -1,21 +1,23 @@
 const router = require("express").Router();
 const {
-  getClothingItems,
   createClothingItem,
   deleteClothingItem,
   likeItem,
   unlikeItem,
 } = require("../controllers/clothingItems");
+const {
+  validateCreateClothingItem,
+  validateItemIdParam,
+} = require("../middlewares/validation");
 
-// GET /items — returns all clothing items
-router.get("/", getClothingItems);
 // POST /items — creates a new item
-router.post("/", createClothingItem);
+router.post("/", validateCreateClothingItem, createClothingItem);
+
 // DELETE /items/:itemId — deletes an item by _id
-router.delete("/:itemId", deleteClothingItem);
+router.delete("/:itemId", validateItemIdParam, deleteClothingItem);
 
 // routes for the like and unlike functionality
-router.put("/:itemId/likes", likeItem);
-router.delete("/:itemId/likes", unlikeItem);
+router.put("/:itemId/likes", validateItemIdParam, likeItem);
+router.delete("/:itemId/likes", validateItemIdParam, unlikeItem);
 
 module.exports = router;
